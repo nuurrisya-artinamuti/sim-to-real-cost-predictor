@@ -7,10 +7,6 @@
     
     <!-- Outfit Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Plotly.js CDN -->
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
-
     <style>
         :root {
             --bg-color: #0F172A;
@@ -363,59 +359,37 @@
             font-size: 0.85rem;
         }
 
-        /* --- Visualizer side-by-side container --- */
-        .visualizer-container {
-            display: grid;
-            grid-template-columns: 3fr 2fr;
-            gap: 20px;
-            align-items: stretch;
-        }
-
-        .chart-wrapper {
-            min-width: 0; /* Prevents Plotly from expanding grid */
-        }
-
-        /* SVG Preview card styling */
-        .svg-preview-card {
-            background: rgba(15, 23, 42, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 450px;
-            overflow: hidden;
-            position: relative;
-        }
-
+        /* --- Floor Plan Preview Card Styling --- */
         .svg-preview-header {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--text-sub);
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             width: 100%;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
+            padding-bottom: 10px;
             text-align: left;
         }
 
         .svg-container {
             width: 100%;
-            height: 100%;
+            min-height: 420px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: auto;
+            background: rgba(15, 23, 42, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
         }
 
         .svg-container svg {
             width: 100%;
             height: auto;
-            max-height: 360px;
+            max-height: 400px;
             filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
         }
 
@@ -460,10 +434,14 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex-grow: 1;
+            min-height: 420px;
+            width: 100%;
             color: var(--text-sub);
             text-align: center;
             gap: 12px;
+            background: rgba(15, 23, 42, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
         }
 
         .placeholder-icon {
@@ -483,13 +461,43 @@
             100% { transform: scale(1); opacity: 0.5; }
         }
 
-        @media (max-width: 900px) {
-            .visualizer-container {
-                grid-template-columns: 1fr;
-            }
-            .svg-preview-card {
-                min-height: 350px;
-            }
+        /* --- Methodology Step Card Layout --- */
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .methodology-step {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            line-height: 1;
+            opacity: 0.8;
+        }
+
+        .step-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .step-content p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -592,47 +600,42 @@
                 </div>
             </div>
 
-            <!-- Visualizer Layout Card (Plotly Chart & SVG Floor Plan) -->
-            <div class="glass-card" style="padding: 20px;">
-                <div class="visualizer-container">
-                    <!-- Left: S-Curve Chart -->
-                    <div class="chart-wrapper">
-                        <div id="plotly-chart-container">
-                            <div class="spinner" id="loading-spinner"></div>
-                            <div id="plotly-chart" style="width: 100%; height: 450px;"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Right: SVG Preview -->
-                    <div class="svg-preview-card">
-                        <div class="svg-preview-header">🗺️ Floor Plan Visualizer</div>
-                        <div id="svg-container" class="svg-container hidden"></div>
-                        <div id="svg-placeholder" class="svg-placeholder">
-                            <div class="placeholder-icon">📐</div>
-                            <div class="placeholder-text">Loading floor plan...</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="alert-box alert-warning" id="skew-alert">
-                    <div class="alert-title">⚠️ Black Swan Risk Detected</div>
-                    <div class="alert-text" id="skew-alert-text">
-                        The distribution displays high positive skewness. 
-                        The risk engine captures a 3% probability of extreme price spikes (up to 2.5x multiplier) 
-                        due to material supply chain disruptions, labor shortages, or regulatory hurdles.
-                    </div>
+            <!-- Floor Plan Visualizer Card -->
+            <div class="glass-card" style="padding: 24px;">
+                <div class="svg-preview-header">🗺️ Floor Plan Visualizer</div>
+                <div id="svg-container" class="svg-container hidden"></div>
+                <div id="svg-placeholder" class="svg-placeholder">
+                    <div class="placeholder-icon">📐</div>
+                    <div class="placeholder-text">Loading floor plan...</div>
                 </div>
             </div>
 
             <!-- Methodology Details Card -->
-            <div class="glass-card">
-                <h3 style="margin-bottom: 12px; font-weight: 600;">⚙️ Risk Engine Methodology</h3>
-                <p style="color: var(--text-sub); font-size: 0.95rem; margin-bottom: 12px;">
-                    This application utilizes a two-stage **Linear Regression pipeline**. In the first stage, market price forecasts determine the baseline €/m² valuation. In the second stage, your friend's <strong>Linear Regression Cost Predictor</strong> maps geometric features (GFA, rooms) and inflation parameters directly to the final construction cost.
-                </p>
-                <p style="color: var(--text-sub); font-size: 0.95rem;">
-                    To establish the model's prediction error range, the system references the model's Mean Absolute Error (MAE = €30,882.89). We construct the cumulative probability S-curve analytically from a normal error distribution: $N(\mu = \text{Predicted Cost}, \sigma = 1.2533 \times \text{MAE})$ to model typical variance.
-                </p>
+            <div class="glass-card" style="padding: 24px;">
+                <h3 style="margin-bottom: 16px; font-weight: 600;">⚙️ Estimation Methodology</h3>
+                <div class="methodology-grid">
+                    <div class="methodology-step">
+                        <div class="step-num">01</div>
+                        <div class="step-content">
+                            <h4>Feature Extraction</h4>
+                            <p>Parses the uploaded SVG floor plan using geometric scaling based on standard door widths (0.90m) to calculate GFA and count rooms.</p>
+                        </div>
+                    </div>
+                    <div class="methodology-step">
+                        <div class="step-num">02</div>
+                        <div class="step-content">
+                            <h4>Market Forecast</h4>
+                            <p>Uses a historical Linear Regression model (2020-2024 data) to forecast the base price/m² for the target city and completion year.</p>
+                        </div>
+                    </div>
+                    <div class="methodology-step">
+                        <div class="step-num">03</div>
+                        <div class="step-content">
+                            <h4>Cost Prediction</h4>
+                            <p>Applies a Linear Regression cost model incorporating room complexity: $\text{CF} = 1 + (\text{rooms} \times 0.01)$. Margin of error is given by the model's MAE (€30,882.89).</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -654,12 +657,9 @@
     
     const form = document.getElementById("predictor-form");
     const btnSubmit = document.getElementById("btn-submit");
-    const spinner = document.getElementById("loading-spinner");
-    const chartDiv = document.getElementById("plotly-chart");
     
     const errorAlert = document.getElementById("error-alert");
     const errorAlertText = document.getElementById("error-alert-text");
-    const skewAlert = document.getElementById("skew-alert");
     
     const kpiGfa = document.getElementById("kpi-gfa");
     const kpiRooms = document.getElementById("kpi-rooms");
@@ -744,149 +744,14 @@
 
     fileInput.addEventListener("change", handleUploadedFilePreview);
 
-    // --- Plot S-Curve CDF ---
-    function drawPlot(treePredictions, expected, mae) {
-        const nTrees = treePredictions.length;
-        
-        // Cumulative probabilities [1/N to N/N]
-        const yValues = [];
-        for (let i = 1; i <= nTrees; i++) {
-            yValues.push(i / nTrees);
-        }
-
-        const trace = {
-            x: treePredictions,
-            y: yValues,
-            mode: 'lines',
-            name: 'S-Curve (CDF)',
-            line: {
-                color: '#6366F1',
-                width: 3.5,
-                shape: 'spline'
-            },
-            hovertemplate: 'Cost: <b>%{x:,.2f} €</b><br>Probability: <b>%{y:.1%}</b><extra></extra>'
-        };
-
-        const lowerBound = expected - mae;
-        const upperBound = expected + mae;
-
-        const layout = {
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(15, 23, 42, 0.5)',
-            xaxis: {
-                title: 'Estimated Project Cost (€)',
-                gridcolor: 'rgba(255,255,255,0.05)',
-                tickfont: { color: '#64748B' },
-                titlefont: { color: '#94A3B8', family: 'Outfit' }
-            },
-            yaxis: {
-                title: 'Cumulative Probability (CDF)',
-                gridcolor: 'rgba(255,255,255,0.05)',
-                tickfont: { color: '#64748B' },
-                titlefont: { color: '#94A3B8', family: 'Outfit' },
-                tickformat: '.0%',
-                range: [-0.05, 1.05]
-            },
-            margin: { l: 60, r: 40, t: 30, b: 60 },
-            showlegend: false,
-            shapes: [
-                // Shaded MAE range band
-                {
-                     type: 'rect',
-                     xref: 'x',
-                     yref: 'paper',
-                     x0: lowerBound,
-                     x1: upperBound,
-                     y0: 0,
-                     y1: 1,
-                     fillcolor: 'rgba(99, 102, 241, 0.08)',
-                     line: { width: 0 },
-                     layer: 'below'
-                },
-                // Expected line
-                {
-                     type: 'line',
-                     xref: 'x',
-                     yref: 'paper',
-                     x0: expected,
-                     x1: expected,
-                     y0: 0,
-                     y1: 1,
-                     line: { color: '#10B981', width: 2.5 }
-                },
-                // Lower MAE limit dashed line
-                {
-                     type: 'line',
-                     xref: 'x',
-                     yref: 'paper',
-                     x0: lowerBound,
-                     x1: lowerBound,
-                     y0: 0,
-                     y1: 1,
-                     line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
-                },
-                // Upper MAE limit dashed line
-                {
-                     type: 'line',
-                     xref: 'x',
-                     yref: 'paper',
-                     x0: upperBound,
-                     x1: upperBound,
-                     y0: 0,
-                     y1: 1,
-                     line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
-                }
-            ],
-            annotations: [
-                // Expected Label
-                {
-                     xref: 'x',
-                     yref: 'paper',
-                     x: expected,
-                     y: 0.95,
-                     text: `Expected: ${Math.round(expected).toLocaleString()} €`,
-                     showarrow: false,
-                     font: { color: '#34D399', size: 12, weight: 'bold', family: 'Outfit' },
-                     xanchor: 'right'
-                },
-                // Lower MAE Label
-                {
-                     xref: 'x',
-                     yref: 'paper',
-                     x: lowerBound,
-                     y: 0.9,
-                     text: `Expected - MAE: ${Math.round(lowerBound).toLocaleString()} €`,
-                     showarrow: false,
-                     font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
-                     xanchor: 'right'
-                },
-                // Upper MAE Label
-                {
-                     xref: 'x',
-                     yref: 'paper',
-                     x: upperBound,
-                     y: 0.9,
-                     text: `Expected + MAE: ${Math.round(upperBound).toLocaleString()} €`,
-                     showarrow: false,
-                     font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
-                     xanchor: 'left'
-                }
-            ]
-        };
-
-        Plotly.newPlot(chartDiv, [trace], layout, { responsive: true, displayModeBar: false });
-    }
-
     // --- Pipeline execution trigger ---
     async function runPrediction(e) {
         if (e) e.preventDefault();
 
-        // Show spinner, hide chart and alerts
-        spinner.style.display = "block";
-        chartDiv.style.opacity = "0.2";
-        errorAlert.style.display = "none";
-        skewAlert.style.display = "none";
+        // Show loading text on button, disable controls, hide error alert
         btnSubmit.disabled = true;
+        btnSubmit.innerHTML = "<span>⏳ Processing...</span>";
+        errorAlert.style.display = "none";
 
         const formData = new FormData(form);
 
@@ -916,10 +781,6 @@
             kpiCost.textContent = `${data.predicted_cost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €`;
             kpiMae.textContent = `${Math.round(data.mae).toLocaleString()} €`;
 
-            // Draw Chart
-            const expected = data.predicted_cost;
-            drawPlot(data.tree_predictions, expected, data.mae);
-
         } catch (err) {
             console.error(err);
             errorAlertText.textContent = err.message || "Could not connect to the API server.";
@@ -932,9 +793,8 @@
             kpiCost.textContent = "— €";
             kpiMae.textContent = "— €";
         } finally {
-            spinner.style.display = "none";
-            chartDiv.style.opacity = "1";
             btnSubmit.disabled = false;
+            btnSubmit.innerHTML = "<span>⚡ Run Cost Engine</span>";
         }
     }
 
