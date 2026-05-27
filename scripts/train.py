@@ -151,7 +151,7 @@ def main():
     )
     parser.add_argument(
         "--cost-csv",
-        default=os.path.join(base_dir, "Fixed GFA Approach", "Fixed datasets", "New Output 1 - Combined Dataset.csv"),
+        default=os.path.join(base_dir, "data", "combined_dataset.csv"),
         help="Path to combined project cost CSV dataset."
     )
     
@@ -159,8 +159,8 @@ def main():
     
     # Target files locations
     models_dir = os.path.join(base_dir, "models")
-    cost_model_path = os.path.join(base_dir, "Fixed GFA Approach", "final_linear_cost_model.pkl")
-    cost_mae_path = os.path.join(base_dir, "Fixed GFA Approach", "final_model_mae.txt")
+    cost_model_path = os.path.join(models_dir, "final_linear_cost_model.pkl")
+    cost_mae_path = os.path.join(models_dir, "final_model_mae.txt")
     
     try:
         train_market_model(args.market_excel, models_dir)

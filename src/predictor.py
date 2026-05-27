@@ -18,10 +18,10 @@ class CostPredictor:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
         if model_path is None:
-            model_path = os.path.join(base_dir, "Fixed GFA Approach", "final_linear_cost_model.pkl")
+            model_path = os.path.join(base_dir, "models", "final_linear_cost_model.pkl")
             
         if mae_path is None:
-            mae_path = os.path.join(base_dir, "Fixed GFA Approach", "final_model_mae.txt")
+            mae_path = os.path.join(base_dir, "models", "final_model_mae.txt")
             
         if not os.path.exists(model_path):
             raise FileNotFoundError(
