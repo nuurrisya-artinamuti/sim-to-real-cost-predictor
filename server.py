@@ -109,7 +109,8 @@ def predict():
             "predicted_cost": results["predicted_cost"],
             "ci_lower": results["ci_lower"],
             "ci_upper": results["ci_upper"],
-            "tree_predictions": results["tree_predictions"]
+            "tree_predictions": results["tree_predictions"],
+            "mae": predictor.mae
         })
 
     except ValueError as ve:

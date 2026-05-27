@@ -552,16 +552,7 @@
                     </div>
                 </div>
 
-                <!-- 5. Confidence Level Slider -->
-                <div class="form-group">
-                    <div class="form-label">Confidence level (%)</div>
-                    <input type="range" class="form-control" id="confidence" name="confidence" min="50" max="99" value="90">
-                    <div class="slider-value">
-                        <span>50%</span>
-                        <span class="slider-display" id="confidence-val">90%</span>
-                        <span>99%</span>
-                    </div>
-                </div>
+                <!-- 5. Confidence Level Slider removed -->
 
                 <!-- Run Button -->
                 <button type="submit" class="btn-run" id="btn-submit">
@@ -594,6 +585,10 @@
                 <div class="kpi-card">
                     <span class="kpi-label">Expected Cost</span>
                     <span class="kpi-value kpi-accent" id="kpi-cost">— €</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Model Error (MAE)</span>
+                    <span class="kpi-value" id="kpi-mae">— €</span>
                 </div>
             </div>
 
@@ -636,7 +631,7 @@
                     This application utilizes a two-stage **Linear Regression pipeline**. In the first stage, market price forecasts determine the baseline €/m² valuation. In the second stage, your friend's <strong>Linear Regression Cost Predictor</strong> maps geometric features (GFA, rooms) and inflation parameters directly to the final construction cost.
                 </p>
                 <p style="color: var(--text-sub); font-size: 0.95rem;">
-                    To establish the risk envelope, the system uses the model's Mean Absolute Error (MAE = €30,882.89) to parameterize a normal error distribution: $N(\mu = \text{Predicted Cost}, \sigma = 1.2533 \times \text{MAE})$. The <strong id="methodology-ci-label">90% Confidence Interval</strong> and the cumulative distribution S-curve are computed analytically, offering high-performance risk modeling.
+                    To establish the model's prediction error range, the system references the model's Mean Absolute Error (MAE = €30,882.89). We construct the cumulative probability S-curve analytically from a normal error distribution: $N(\mu = \text{Predicted Cost}, \sigma = 1.2533 \times \text{MAE})$ to model typical variance.
                 </p>
             </div>
         </main>
@@ -656,8 +651,6 @@
     
     const yearSlider = document.getElementById("year");
     const yearVal = document.getElementById("year-val");
-    const confidenceSlider = document.getElementById("confidence");
-    const confidenceVal = document.getElementById("confidence-val");
     
     const form = document.getElementById("predictor-form");
     const btnSubmit = document.getElementById("btn-submit");
@@ -667,12 +660,12 @@
     const errorAlert = document.getElementById("error-alert");
     const errorAlertText = document.getElementById("error-alert-text");
     const skewAlert = document.getElementById("skew-alert");
-    const methodologyCiLabel = document.getElementById("methodology-ci-label");
     
     const kpiGfa = document.getElementById("kpi-gfa");
     const kpiRooms = document.getElementById("kpi-rooms");
     const kpiPrice = document.getElementById("kpi-price");
     const kpiCost = document.getElementById("kpi-cost");
+    const kpiMae = document.getElementById("kpi-mae");
 
     // SVG preview elements
     const svgContainer = document.getElementById("svg-container");
@@ -701,10 +694,6 @@
     // --- Dynamic Slider Labels ---
     yearSlider.addEventListener("input", () => {
         yearVal.textContent = yearSlider.value;
-    });
-
-    confidenceSlider.addEventListener("input", () => {
-        confidenceVal.textContent = confidenceSlider.value + "%";
     });
 
     // --- Toggle Demo Mode / File Upload ---
@@ -756,7 +745,7 @@
     fileInput.addEventListener("change", handleUploadedFilePreview);
 
     // --- Plot S-Curve CDF ---
-    function drawPlot(treePredictions, expected, ciLower, ciUpper, confidence) {
+    function drawPlot(treePredictions, expected, mae) {
         const nTrees = treePredictions.length;
         
         // Cumulative probabilities [1/N to N/N]
@@ -778,8 +767,8 @@
             hovertemplate: 'Cost: <b>%{x:,.2f} €</b><br>Probability: <b>%{y:.1%}</b><extra></extra>'
         };
 
-        const lowerPercentile = (100 - confidence) / 2;
-        const upperPercentile = 100 - lowerPercentile;
+        const lowerBound = expected - mae;
+        const upperBound = expected + mae;
 
         const layout = {
             paper_bgcolor: 'rgba(0,0,0,0)',
@@ -801,13 +790,13 @@
             margin: { l: 60, r: 40, t: 30, b: 60 },
             showlegend: false,
             shapes: [
-                // Shaded CI band
+                // Shaded MAE range band
                 {
                      type: 'rect',
                      xref: 'x',
                      yref: 'paper',
-                     x0: ciLower,
-                     x1: ciUpper,
+                     x0: lowerBound,
+                     x1: upperBound,
                      y0: 0,
                      y1: 1,
                      fillcolor: 'rgba(99, 102, 241, 0.08)',
@@ -825,24 +814,24 @@
                      y1: 1,
                      line: { color: '#10B981', width: 2.5 }
                 },
-                // Lower CI bound dashed line
+                // Lower MAE limit dashed line
                 {
                      type: 'line',
                      xref: 'x',
                      yref: 'paper',
-                     x0: ciLower,
-                     x1: ciLower,
+                     x0: lowerBound,
+                     x1: lowerBound,
                      y0: 0,
                      y1: 1,
                      line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
                 },
-                // Upper CI bound dashed line
+                // Upper MAE limit dashed line
                 {
                      type: 'line',
                      xref: 'x',
                      yref: 'paper',
-                     x0: ciUpper,
-                     x1: ciUpper,
+                     x0: upperBound,
+                     x1: upperBound,
                      y0: 0,
                      y1: 1,
                      line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
@@ -860,24 +849,24 @@
                      font: { color: '#34D399', size: 12, weight: 'bold', family: 'Outfit' },
                      xanchor: 'right'
                 },
-                // Lower P Label
+                // Lower MAE Label
                 {
                      xref: 'x',
                      yref: 'paper',
-                     x: ciLower,
+                     x: lowerBound,
                      y: 0.9,
-                     text: `P${lowerPercentile}: ${Math.round(ciLower).toLocaleString()} €`,
+                     text: `Expected - MAE: ${Math.round(lowerBound).toLocaleString()} €`,
                      showarrow: false,
                      font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
                      xanchor: 'right'
                 },
-                // Upper P Label
+                // Upper MAE Label
                 {
                      xref: 'x',
                      yref: 'paper',
-                     x: ciUpper,
+                     x: upperBound,
                      y: 0.9,
-                     text: `P${upperPercentile}: ${Math.round(ciUpper).toLocaleString()} €`,
+                     text: `Expected + MAE: ${Math.round(upperBound).toLocaleString()} €`,
                      showarrow: false,
                      font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
                      xanchor: 'left'
@@ -925,22 +914,11 @@
             kpiRooms.textContent = data.rooms;
             kpiPrice.textContent = `${Math.round(data.base_market_price).toLocaleString()} €/m²`;
             kpiCost.textContent = `${data.predicted_cost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €`;
-
-            methodologyCiLabel.textContent = `${confidenceSlider.value}% Confidence Interval`;
+            kpiMae.textContent = `${Math.round(data.mae).toLocaleString()} €`;
 
             // Draw Chart
             const expected = data.predicted_cost;
-            const ciLower = data.ci_lower;
-            const ciUpper = data.ci_upper;
-            const confidence = parseFloat(confidenceSlider.value);
-            
-            drawPlot(data.tree_predictions, expected, ciLower, ciUpper, confidence);
-
-            // Check for right-skewed Black Swan tail
-            const skewness = (ciUpper - expected) / (expected - ciLower + 1);
-            if (skewness > 1.25) {
-                skewAlert.style.display = "block";
-            }
+            drawPlot(data.tree_predictions, expected, data.mae);
 
         } catch (err) {
             console.error(err);
@@ -952,6 +930,7 @@
             kpiRooms.textContent = "—";
             kpiPrice.textContent = "— €/m²";
             kpiCost.textContent = "— €";
+            kpiMae.textContent = "— €";
         } finally {
             spinner.style.display = "none";
             chartDiv.style.opacity = "1";
