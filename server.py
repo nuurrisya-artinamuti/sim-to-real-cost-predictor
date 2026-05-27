@@ -91,7 +91,14 @@ def predict():
         base_price = forecaster.forecast_price(city, year)
 
         # 5. Step 2: Predict construction cost and Confidence Interval
-        results = predictor.predict_cost(gfa, rooms, base_price, confidence_level=confidence)
+        results = predictor.predict_cost(
+            gfa=gfa,
+            rooms=rooms,
+            base_market_price=base_price,
+            city=city,
+            year=year,
+            confidence_level=confidence
+        )
 
         # 6. Return payload
         return jsonify({

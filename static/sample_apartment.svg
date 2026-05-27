@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+    <!-- Styles -->
+    <style>
+        .wall { stroke: #2D3748; stroke-width: 8; fill: none; stroke-linecap: round; }
+        .thin-wall { stroke: #4A5568; stroke-width: 4; fill: none; }
+        .door { stroke: #A0AEC0; stroke-width: 3; fill: none; }
+        .door-arc { stroke: #CBD5E0; stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
+        .window { stroke: #63B3ED; stroke-width: 5; fill: #EBF8FF; }
+        .label { font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 600; fill: #1A202C; text-anchor: middle; }
+        .sub-label { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; fill: #718096; text-anchor: middle; }
+        .title { font-family: 'Inter', system-ui, sans-serif; font-size: 24px; font-weight: 800; fill: #2B6CB0; text-anchor: middle; }
+    </style>
+
+    <!-- Background -->
+    <rect width="800" height="600" fill="#F7FAFC" rx="10" />
+
+    <!-- Title & Floor Plan Info -->
+    <text x="400" y="40" class="title">Two-Bedroom Demonstration Apartment</text>
+    <text x="400" y="65" class="sub-label">GFA: 85.0m2 | Scale 1:50</text>
+
+    <!-- Exterior Walls -->
+    <rect x="50" y="100" width="700" height="420" class="wall" />
+
+    <!-- Windows -->
+    <rect x="150" y="96" width="120" height="8" class="window" />
+    <rect x="450" y="96" width="150" height="8" class="window" />
+    <rect x="746" y="200" width="8" height="100" class="window" />
+    <rect x="50" y="250" width="8" height="80" class="window" />
+
+    <!-- Interior Layout Walls -->
+    <!-- Corridor / Living Separation -->
+    <line x1="50" y1="280" x2="300" y2="280" class="wall" />
+    <line x1="300" y1="280" x2="300" y2="520" class="wall" />
+    
+    <!-- Bedrooms separation -->
+    <line x1="530" y1="100" x2="530" y2="350" class="wall" />
+    <line x1="300" y1="350" x2="750" y2="350" class="wall" />
+    
+    <!-- Kitchen separation -->
+    <line x1="50" y1="400" x2="200" y2="400" class="wall" />
+    <line x1="200" y1="400" x2="200" y2="520" class="wall" />
+
+    <!-- Bathroom / WC -->
+    <line x1="300" y1="430" x2="480" y2="430" class="thin-wall" />
+    <line x1="480" y1="430" x2="480" y2="520" class="thin-wall" />
+
+    <!-- Doors & Door Arcs -->
+    <!-- Main Entrance Door -->
+    <line x1="340" y1="520" x2="340" y2="470" class="door" />
+    <path d="M 340 470 A 50 50 0 0 1 390 520" class="door-arc" />
+
+    <!-- Bedroom 1 Door -->
+    <line x1="530" y1="310" x2="480" y2="310" class="door" />
+    <path d="M 480 310 A 50 50 0 0 0 530 260" class="door-arc" />
+
+    <!-- Bedroom 2 Door -->
+    <line x1="560" y1="350" x2="560" y2="390" class="door" />
+    <path d="M 560 390 A 40 40 0 0 1 600 350" class="door-arc" />
+
+    <!-- Bathroom Door -->
+    <line x1="330" y1="430" x2="330" y2="390" class="door" />
+    
+    <!-- Room Text Labels -->
+    <!-- Living Room -->
+    <text x="415" y="220" class="label">Living Room</text>
+    <text x="415" y="240" class="sub-label">Area: 32.5 m²</text>
+
+    <!-- Bedroom 1 -->
+    <text x="640" y="220" class="label">Bedroom 1</text>
+    <text x="640" y="240" class="sub-label">Area: 18.0 m²</text>
+
+    <!-- Bedroom 2 -->
+    <text x="640" y="440" class="label">Bedroom 2</text>
+    <text x="640" y="460" class="sub-label">Area: 14.5 m²</text>
+
+    <!-- Kitchen -->
+    <text x="125" y="460" class="label">Kitchen</text>
+    <text x="125" y="480" class="sub-label">Area: 11.0 m²</text>
+
+    <!-- Bathroom / WC -->
+    <text x="390" y="480" class="label">Bathroom</text>
+    <text x="390" y="500" class="sub-label">Area: 6.0 m²</text>
+
+    <!-- Hallway / Corridor -->
+    <text x="175" y="200" class="label">Corridor</text>
+    <text x="175" y="220" class="sub-label">Area: 3.0 m²</text>
+
+    <!-- Dimension Annotations -->
+    <!-- GFA Label to be picked up by regex extractor -->
+    <text x="400" y="570" class="label" font-size="18" fill="#2D3748">GFA: 85m2</text>
+</svg>

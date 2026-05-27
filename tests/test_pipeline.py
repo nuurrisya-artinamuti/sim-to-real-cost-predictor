@@ -149,7 +149,14 @@ def test_predictor():
     predictor = CostPredictor()
     
     # 1. Standard prediction with default 90% confidence
-    results_90 = predictor.predict_cost(gfa=85.0, rooms=3, base_market_price=4200.0, confidence_level=90.0)
+    results_90 = predictor.predict_cost(
+        gfa=85.0,
+        rooms=3,
+        base_market_price=4200.0,
+        city="Helsinki",
+        year=2026,
+        confidence_level=90.0
+    )
     
     assert "predicted_cost" in results_90
     assert "ci_lower" in results_90
@@ -166,7 +173,14 @@ def test_predictor():
     assert len(results_90["tree_predictions"]) == 150
 
     # 2. Test dynamic confidence levels: a 95% interval should be wider than a 90% interval
-    results_95 = predictor.predict_cost(gfa=85.0, rooms=3, base_market_price=4200.0, confidence_level=95.0)
+    results_95 = predictor.predict_cost(
+        gfa=85.0,
+        rooms=3,
+        base_market_price=4200.0,
+        city="Helsinki",
+        year=2026,
+        confidence_level=95.0
+    )
     
     assert results_95["ci_lower"] <= results_90["ci_lower"]
     assert results_95["ci_upper"] >= results_90["ci_upper"]

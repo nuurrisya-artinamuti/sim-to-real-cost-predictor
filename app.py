@@ -283,7 +283,14 @@ def main():
             base_price = forecaster.forecast_price(city, year)
 
             # Step 3: Cost and CI calculation
-            results = predictor.predict_cost(gfa, rooms, base_price, confidence_level=confidence)
+            results = predictor.predict_cost(
+                gfa=gfa,
+                rooms=rooms,
+                base_market_price=base_price,
+                city=city,
+                year=year,
+                confidence_level=confidence
+            )
             
             # --- Main Content Columns ---
             col_left, col_right = st.columns([1, 2], gap="large")

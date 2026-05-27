@@ -362,6 +362,135 @@
             color: #475569;
             font-size: 0.85rem;
         }
+
+        /* --- Visualizer side-by-side container --- */
+        .visualizer-container {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .chart-wrapper {
+            min-width: 0; /* Prevents Plotly from expanding grid */
+        }
+
+        /* SVG Preview card styling */
+        .svg-preview-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 450px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .svg-preview-header {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-sub);
+            margin-bottom: 15px;
+            width: 100%;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            text-align: left;
+        }
+
+        .svg-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-height: 360px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+        }
+
+        /* Dark Theme Blueprint overrides for the SVG elements */
+        .svg-container svg path,
+        .svg-container svg polygon,
+        .svg-container svg rect {
+            stroke: rgba(99, 102, 241, 0.85) !important;
+            fill: rgba(99, 102, 241, 0.12) !important;
+            stroke-width: 1.5px !important;
+            transition: all 0.2s ease;
+        }
+
+        .svg-container svg .Space,
+        .svg-container svg [class*="Space"] {
+            fill: rgba(99, 102, 241, 0.15) !important;
+            stroke: rgba(99, 102, 241, 0.7) !important;
+        }
+
+        .svg-container svg .Door,
+        .svg-container svg [class*="Door"] {
+            stroke: #10B981 !important;
+            fill: none !important;
+            stroke-width: 2.5px !important;
+        }
+
+        .svg-container svg .Wall,
+        .svg-container svg [class*="Wall"] {
+            fill: #334155 !important;
+            stroke: #475569 !important;
+        }
+
+        .svg-container svg text {
+            fill: #F8FAFC !important;
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 500 !important;
+            font-size: 11px !important;
+        }
+
+        .svg-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            color: var(--text-sub);
+            text-align: center;
+            gap: 12px;
+        }
+
+        .placeholder-icon {
+            font-size: 3rem;
+            opacity: 0.6;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .placeholder-text {
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.08); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        @media (max-width: 900px) {
+            .visualizer-container {
+                grid-template-columns: 1fr;
+            }
+            .svg-preview-card {
+                min-height: 350px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -468,11 +597,26 @@
                 </div>
             </div>
 
-            <!-- Chart and Skew Alert Card -->
-            <div class="glass-card" style="padding: 10px;">
-                <div id="plotly-chart-container">
-                    <div class="spinner" id="loading-spinner"></div>
-                    <div id="plotly-chart" style="width: 100%; height: 450px;"></div>
+            <!-- Visualizer Layout Card (Plotly Chart & SVG Floor Plan) -->
+            <div class="glass-card" style="padding: 20px;">
+                <div class="visualizer-container">
+                    <!-- Left: S-Curve Chart -->
+                    <div class="chart-wrapper">
+                        <div id="plotly-chart-container">
+                            <div class="spinner" id="loading-spinner"></div>
+                            <div id="plotly-chart" style="width: 100%; height: 450px;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: SVG Preview -->
+                    <div class="svg-preview-card">
+                        <div class="svg-preview-header">🗺️ Floor Plan Visualizer</div>
+                        <div id="svg-container" class="svg-container hidden"></div>
+                        <div id="svg-placeholder" class="svg-placeholder">
+                            <div class="placeholder-icon">📐</div>
+                            <div class="placeholder-text">Loading floor plan...</div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="alert-box alert-warning" id="skew-alert">
@@ -489,13 +633,10 @@
             <div class="glass-card">
                 <h3 style="margin-bottom: 12px; font-weight: 600;">⚙️ Risk Engine Methodology</h3>
                 <p style="color: var(--text-sub); font-size: 0.95rem; margin-bottom: 12px;">
-                    Unlike traditional construction risk software which relies on compute-heavy Monte Carlo simulations, 
-                    this application employs a <strong>Random Forest Variance Estimation</strong> technique. 
-                    By querying the variance in predictions across all <strong>150 decision tree estimators</strong> inside the forest, 
-                    we extract a mathematically sound probability distribution.
+                    This application utilizes a two-stage **Linear Regression pipeline**. In the first stage, market price forecasts determine the baseline €/m² valuation. In the second stage, your friend's <strong>Linear Regression Cost Predictor</strong> maps geometric features (GFA, rooms) and inflation parameters directly to the final construction cost.
                 </p>
                 <p style="color: var(--text-sub); font-size: 0.95rem;">
-                    The <strong id="methodology-ci-label">90% Confidence Interval</strong> is calculated directly by pulling the matching percentiles from the estimators' outputs. This yields sub-second risk profiles suitable for interactive web platforms.
+                    To establish the risk envelope, the system uses the model's Mean Absolute Error (MAE = €30,882.89) to parameterize a normal error distribution: $N(\mu = \text{Predicted Cost}, \sigma = 1.2533 \times \text{MAE})$. The <strong id="methodology-ci-label">90% Confidence Interval</strong> and the cumulative distribution S-curve are computed analytically, offering high-performance risk modeling.
                 </p>
             </div>
         </main>
@@ -533,6 +674,30 @@
     const kpiPrice = document.getElementById("kpi-price");
     const kpiCost = document.getElementById("kpi-cost");
 
+    // SVG preview elements
+    const svgContainer = document.getElementById("svg-container");
+    const svgPlaceholder = document.getElementById("svg-placeholder");
+
+    // Helper to render SVG content in the preview container
+    function renderSvg(svgText) {
+        if (!svgText) {
+            showSvgPlaceholder("Empty floor plan content.");
+            return;
+        }
+        // Remove XML declaration if present to avoid DOM parsing issues
+        const cleanText = svgText.replace(/<\?xml.*\?>/gi, "");
+        svgContainer.innerHTML = cleanText;
+        svgPlaceholder.classList.add("hidden");
+        svgContainer.classList.remove("hidden");
+    }
+
+    function showSvgPlaceholder(msg) {
+        svgContainer.innerHTML = "";
+        svgContainer.classList.add("hidden");
+        svgPlaceholder.classList.remove("hidden");
+        svgPlaceholder.querySelector(".placeholder-text").textContent = msg;
+    }
+
     // --- Dynamic Slider Labels ---
     yearSlider.addEventListener("input", () => {
         yearVal.textContent = yearSlider.value;
@@ -543,22 +708,52 @@
     });
 
     // --- Toggle Demo Mode / File Upload ---
-    useDemoCheckbox.addEventListener("change", () => {
+    useDemoCheckbox.addEventListener("change", async () => {
         if (useDemoCheckbox.checked) {
             uploadGroup.classList.add("hidden");
+            await loadDemoSvg();
         } else {
             uploadGroup.classList.remove("hidden");
+            handleUploadedFilePreview();
         }
     });
 
-    // Display selected file name
-    fileInput.addEventListener("change", () => {
+    // Load demo SVG file
+    async function loadDemoSvg() {
+        try {
+            const res = await fetch("/sample_apartment.svg");
+            if (res.ok) {
+                const text = await res.text();
+                renderSvg(text);
+            } else {
+                showSvgPlaceholder("Sample SVG floor plan not found.");
+            }
+        } catch (err) {
+            console.error(err);
+            showSvgPlaceholder("Error loading sample floor plan.");
+        }
+    }
+
+    // Handle file upload selection preview
+    function handleUploadedFilePreview() {
         if (fileInput.files.length > 0) {
-            fileNameDisplay.textContent = fileInput.files[0].name;
+            const file = fileInput.files[0];
+            fileNameDisplay.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                renderSvg(e.target.result);
+            };
+            reader.onerror = () => {
+                showSvgPlaceholder("Error reading uploaded file.");
+            };
+            reader.readAsText(file);
         } else {
             fileNameDisplay.textContent = "No file chosen";
+            showSvgPlaceholder("Please upload an SVG floor plan file.");
         }
-    });
+    }
+
+    fileInput.addEventListener("change", handleUploadedFilePreview);
 
     // --- Plot S-Curve CDF ---
     function drawPlot(treePredictions, expected, ciLower, ciUpper, confidence) {
@@ -608,84 +803,84 @@
             shapes: [
                 // Shaded CI band
                 {
-                    type: 'rect',
-                    xref: 'x',
-                    yref: 'paper',
-                    x0: ciLower,
-                    x1: ciUpper,
-                    y0: 0,
-                    y1: 1,
-                    fillcolor: 'rgba(99, 102, 241, 0.08)',
-                    line: { width: 0 },
-                    layer: 'below'
+                     type: 'rect',
+                     xref: 'x',
+                     yref: 'paper',
+                     x0: ciLower,
+                     x1: ciUpper,
+                     y0: 0,
+                     y1: 1,
+                     fillcolor: 'rgba(99, 102, 241, 0.08)',
+                     line: { width: 0 },
+                     layer: 'below'
                 },
                 // Expected line
                 {
-                    type: 'line',
-                    xref: 'x',
-                    yref: 'paper',
-                    x0: expected,
-                    x1: expected,
-                    y0: 0,
-                    y1: 1,
-                    line: { color: '#10B981', width: 2.5 }
+                     type: 'line',
+                     xref: 'x',
+                     yref: 'paper',
+                     x0: expected,
+                     x1: expected,
+                     y0: 0,
+                     y1: 1,
+                     line: { color: '#10B981', width: 2.5 }
                 },
                 // Lower CI bound dashed line
                 {
-                    type: 'line',
-                    xref: 'x',
-                    yref: 'paper',
-                    x0: ciLower,
-                    x1: ciLower,
-                    y0: 0,
-                    y1: 1,
-                    line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
+                     type: 'line',
+                     xref: 'x',
+                     yref: 'paper',
+                     x0: ciLower,
+                     x1: ciLower,
+                     y0: 0,
+                     y1: 1,
+                     line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
                 },
                 // Upper CI bound dashed line
                 {
-                    type: 'line',
-                    xref: 'x',
-                    yref: 'paper',
-                    x0: ciUpper,
-                    x1: ciUpper,
-                    y0: 0,
-                    y1: 1,
-                    line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
+                     type: 'line',
+                     xref: 'x',
+                     yref: 'paper',
+                     x0: ciUpper,
+                     x1: ciUpper,
+                     y0: 0,
+                     y1: 1,
+                     line: { color: '#E2E8F0', width: 1.5, dash: 'dash' }
                 }
             ],
             annotations: [
                 // Expected Label
                 {
-                    xref: 'x',
-                    yref: 'paper',
-                    x: expected,
-                    y: 0.95,
-                    text: `Expected: ${Math.round(expected).toLocaleString()} €`,
-                    showarrow: false,
-                    font: { color: '#34D399', size: 12, weight: 'bold', family: 'Outfit' },
-                    xanchor: 'right'
+                     xref: 'x',
+                     yref: 'paper',
+                     x: expected,
+                     y: 0.95,
+                     text: `Expected: ${Math.round(expected).toLocaleString()} €`,
+                     showarrow: false,
+                     font: { color: '#34D399', size: 12, weight: 'bold', family: 'Outfit' },
+                     xanchor: 'right'
                 },
                 // Lower P Label
                 {
-                    xref: 'x',
-                    yref: 'paper',
-                    x: ciLower,
-                    y: 0.9,
-                    text: `P${lowerPercentile}: ${Math.round(ciLower).toLocaleString()} €`,
-                    showarrow: false,
-                    font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
-                    xanchor: 'right'
+                     xref: 'x',
+                     yref: 'paper',
+                     x: ciLower,
+                     y: 0.9,
+                     text: `P${lowerPercentile}: ${Math.round(ciLower).toLocaleString()} €`,
+                     showarrow: false,
+                     font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
+                     xanchor: 'right'
                 },
                 // Upper P Label
                 {
-                    xref: 'x',
-                    yref: 'paper',
-                    x: ciUpper,
-                    y: 0.9,
-                    text: `P${upperPercentile}: ${Math.round(ciUpper).toLocaleString()} €`,
-                    showarrow: false,
-                    font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
-                    xanchor: 'left'
+                     xref: 'x',
+                     yref: 'paper',
+                     x: ciUpper,
+                     y: 0.9,
+                     text: `P${upperPercentile}: ${Math.round(ciUpper).toLocaleString()} €`,
+                     showarrow: false,
+                     font: { color: '#CBD5E1', size: 10, family: 'Outfit' },
+                     xanchor: 'left'
                 }
             ]
         };
@@ -705,6 +900,13 @@
         btnSubmit.disabled = true;
 
         const formData = new FormData(form);
+
+        // Load preview
+        if (useDemoCheckbox.checked) {
+            await loadDemoSvg();
+        } else {
+            handleUploadedFilePreview();
+        }
 
         try {
             const response = await fetch("/api/predict", {

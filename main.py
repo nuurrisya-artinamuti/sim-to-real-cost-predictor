@@ -41,7 +41,14 @@ def run_pipeline(svg_path: str, city: str, year: int, confidence: float = 90.0) 
     # Module 2: Cost prediction
     print("\n[Step 3/3] Predicting final project construction cost...")
     predictor = CostPredictor()
-    results = predictor.predict_cost(gfa=gfa, rooms=rooms, base_market_price=base_price, confidence_level=confidence)
+    results = predictor.predict_cost(
+        gfa=gfa,
+        rooms=rooms,
+        base_market_price=base_price,
+        city=city,
+        year=year,
+        confidence_level=confidence
+    )
 
     print(f"  > Expected Cost: {results['predicted_cost']:,.2f} €")
     print(f"  > {confidence}% Confidence Interval: [{results['ci_lower']:,.2f} €, {results['ci_upper']:,.2f} €]")
