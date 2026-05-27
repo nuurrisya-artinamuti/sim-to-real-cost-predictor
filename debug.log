@@ -1,0 +1,81 @@
+
+--- API REQUEST ---
+City: Helsinki, Year: 2026, Confidence: 90.0
+
+--- API REQUEST ---
+City: Helsinki, Year: 2026, Confidence: 90.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Helsinki, Year: 2026, Confidence: 90.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Helsinki, Year: 2026, Confidence: 90.0
+use_demo raw value: None -> resolved to use_demo: False
+Uploaded file saved to temporary path: C:\Users\Risya\AppData\Local\Temp\tmpusurt9y1.svg
+Extracting features from path: C:\Users\Risya\AppData\Local\Temp\tmpusurt9y1.svg
+extract_gfa_from_svg directly returned: {'gfa_m2': 89.31855226294917, 'included_space_count': 8, 'excluded_space_count': 1, 'undefined_space_count': 1, 'median_door_width_svg': 79.07, 'scale_m_per_svg_unit': 0.011382319463766284}
+extract_features_from_svg returned: {'gfa': 89.31855226294917, 'rooms': 8}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 90.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 50.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 82.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 99.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 85.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 91.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 64.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
+
+--- API REQUEST ---
+City: Tampere, Year: 2027, Confidence: 91.0
+use_demo raw value: 'on' -> resolved to use_demo: True
+Extracting features from path: C:\Users\Risya\Documents\antigravity\epic-curie\sample_apartment.svg
+extract_gfa_from_svg directly returned: None
+extract_features_from_svg returned: {'gfa': 85.0, 'rooms': 7}
