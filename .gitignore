@@ -1,6 +1,9 @@
 venv/
 __pycache__/
 *.pyc
-models/
+models/*
+!models/market_model.pkl
+!models/final_linear_cost_model.pkl
+!models/final_model_mae.txt
 .pytest_cache/
 .streamlit/
