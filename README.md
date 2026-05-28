@@ -69,11 +69,13 @@ flowchart TD
     end
 
     subgraph Feature Engineering & Assembly
-        CleanDataset & MarketPrices -->|Join GFA with Price/m²| CombineData[Combine Dataset]
+        CleanDataset -->|Join GFA with Price/m²| CombineData[Combine Dataset]
+        MarketPrices -->|Join GFA with Price/m²| CombineData
         CombineData -->|Compute: base_cost = GFA × Price/m²| CalcBase[Calculate Base Costs]
         CombineData -->|Compute: complexity = 1.0 + rooms × 0.01| CalcComplexity[Calculate Complexity Factor]
         
-        CalcBase & CalcComplexity -->|Apply: base_cost × complexity × Uniform Noise [0.9 - 1.2]| CalcActual[Calculate Actual Costs]
+        CalcBase -->|Apply: base_cost × complexity × Uniform Noise [0.9 - 1.2]| CalcActual[Calculate Actual Costs]
+        CalcComplexity -->|Apply: base_cost × complexity × Uniform Noise [0.9 - 1.2]| CalcActual
         CalcActual -->|Assemble Project Records| FinalCSV[data/combined_dataset.csv]
     end
 
@@ -91,24 +93,21 @@ flowchart TD
 
 ---
 
-## 3. Mathematical Methodology: Analytical Risk Engine
+## 3. Mathematical Methodology: Analytical Error Range
 
-Instead of running slow Monte Carlo loops, the system infers prediction uncertainty analytically directly from the model's **Mean Absolute Error (MAE)**.
+Instead of running slow Monte Carlo loops or complex statistics, the application represents prediction uncertainty directly using the **Mean Absolute Error (MAE)** of the trained model.
 
-Assuming prediction errors ($e$) are normally distributed around the predicted expected cost ($y_{pred}$) with standard deviation $\sigma$:
-$$e \sim \mathcal{N}(0, \sigma^2)$$
+### 1. Mean Absolute Error (MAE) Formula
+During testing, the average absolute difference between the simulated actual cost ($y_i$) and the model's predicted cost ($\hat{y}_i$) is calculated as:
+$$\text{MAE} = \frac{1}{N} \sum_{i=1}^{N} |y_i - \hat{y}_i|$$
 
-For a normal distribution, the Mean Absolute Error is related to the standard deviation by:
-$$\text{MAE} = E[|e|] = \sigma \sqrt{\frac{2}{\pi}}$$
+This metric represents the average deviation you can expect from the predicted estimate.
 
-Therefore, we compute the standard deviation ($\sigma$) of the cost distribution dynamically using:
-$$\sigma = \text{MAE} \sqrt{\frac{\pi}{2}}$$
+### 2. Typical Accuracy Range
+The visualizer displays a shaded accuracy bar representing the typical cost range based on this testing error:
+$$\text{Typical Accuracy Range} = [\text{Predicted Cost} - \text{MAE}, \text{Predicted Cost} + \text{MAE}]$$
 
-Using this inferred $\sigma$, the confidence interval bounds ($[CI_{lower}, CI_{upper}]$) are computed using the normal Percent Point Function (PPF, or inverse CDF) at the specified confidence level:
-$$CI_{lower} = \text{ppf}\left(\frac{100 - \text{Confidence}}{2 \times 100}, \text{loc}=y_{pred}, \text{scale}=\sigma\right)$$
-$$CI_{upper} = \text{ppf}\left(1 - \frac{100 - \text{Confidence}}{2 \times 100}, \text{loc}=y_{pred}, \text{scale}=\sigma\right)$$
-
-To construct the interactive S-Curve, 150 points are generated along the inverse CDF between $0.1\%$ and $99.9\%$, providing a smooth, continuous probability curve.
+This gives decision-makers a clear, direct picture of the model's historical reliability envelope without requiring complex statistical assumptions.
 
 ---
 
