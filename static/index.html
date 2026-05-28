@@ -545,14 +545,14 @@
                     <!-- 1. Demo Mode Selection -->
                     <div class="form-group">
                         <label class="checkbox-container">
-                            <input type="checkbox" id="use_demo" name="use_demo" checked>
+                            <input type="checkbox" id="use_demo" name="use_demo">
                             <span class="custom-checkbox"></span>
                             <span style="font-size: 0.95rem;">Use Demo Floor Plan (2-Bed)</span>
                         </label>
                     </div>
 
-                    <!-- 2. Custom Upload Input (hidden when use_demo checked) -->
-                    <div class="form-group hidden" id="upload-group">
+                    <!-- 2. Custom Upload Input (visible by default) -->
+                    <div class="form-group" id="upload-group">
                         <label class="form-label">Floor Plan SVG</label>
                         <div class="upload-zone" onclick="document.getElementById('file-input').click()">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-sub)">
@@ -964,9 +964,14 @@
     // Submit handler
     form.addEventListener("submit", runPrediction);
 
-    // Initial run on load (using demo floor plan)
+    // Initial run on load
     window.addEventListener("load", () => {
-        runPrediction();
+        if (useDemoCheckbox.checked) {
+            runPrediction();
+        } else {
+            showSvgPlaceholder("Please upload an SVG floor plan file.");
+            showChartPlaceholder("Awaiting pipeline execution...");
+        }
     });
 </script>
 
