@@ -7,6 +7,8 @@
     
     <!-- Outfit Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
         :root {
             --bg-color: #0F172A;
@@ -499,6 +501,21 @@
             color: var(--text-sub);
             line-height: 1.4;
         }
+
+        /* --- Visualizers Row Grid --- */
+        .visualizer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .visualizer-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -600,13 +617,27 @@
                 </div>
             </div>
 
-            <!-- Floor Plan Visualizer Card -->
-            <div class="glass-card" style="padding: 24px;">
-                <div class="svg-preview-header">🗺️ Floor Plan Visualizer</div>
-                <div id="svg-container" class="svg-container hidden"></div>
-                <div id="svg-placeholder" class="svg-placeholder">
-                    <div class="placeholder-icon">📐</div>
-                    <div class="placeholder-text">Loading floor plan...</div>
+            <!-- Visualizers Row -->
+            <div class="visualizer-grid">
+                <!-- Floor Plan Visualizer Card -->
+                <div class="glass-card" style="padding: 24px; margin-bottom: 0;">
+                    <div class="svg-preview-header">🗺️ Floor Plan Visualizer</div>
+                    <div id="svg-container" class="svg-container hidden"></div>
+                    <div id="svg-placeholder" class="svg-placeholder">
+                        <div class="placeholder-icon">📐</div>
+                        <div class="placeholder-text">Loading floor plan...</div>
+                    </div>
+                </div>
+
+                <!-- Cost Range Chart Card -->
+                <div class="glass-card" style="padding: 24px; margin-bottom: 0;">
+                    <div class="svg-preview-header">📊 Cost Estimation Visualizer</div>
+                    <div id="plotly-chart-container" style="min-height: 420px; width: 100%;">
+                        <div class="svg-placeholder" style="border: none; min-height: 380px;">
+                            <div class="placeholder-icon">📈</div>
+                            <div class="placeholder-text">Awaiting pipeline execution...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -646,6 +677,118 @@
 </div>
 
 <script>
+    // --- Chart Helper Functions ---
+    function buildCostRangeChart(baseCost, predictedCost, mae) {
+        const minVal = Math.max(0, predictedCost - mae);
+        const maxVal = predictedCost + mae;
+
+        // Trace for typical MAE range (shaded bar)
+        const traceRange = {
+            x: [minVal, maxVal],
+            y: ["Project Cost", "Project Cost"],
+            type: "scatter",
+            mode: "lines",
+            line: {
+                color: "rgba(99, 102, 241, 0.25)",
+                width: 40
+            },
+            name: "Typical Accuracy Range (± MAE)",
+            hoverinfo: "none",
+            showlegend: true
+        };
+
+        // Trace for Base Cost line marker
+        const traceBase = {
+            x: [baseCost],
+            y: ["Project Cost"],
+            type: "scatter",
+            mode: "markers",
+            marker: {
+                symbol: "line-ns-open",
+                size: 30,
+                line: {
+                    color: "#94A3B8",
+                    width: 4
+                }
+            },
+            name: "Base Cost (GFA × Price/m²)",
+            hovertemplate: "Base Cost: <b>%{x:,.2f} €</b><extra></extra>",
+            showlegend: true
+        };
+
+        // Trace for Expected predicted cost marker
+        const traceExpected = {
+            x: [predictedCost],
+            y: ["Project Cost"],
+            type: "scatter",
+            mode: "markers",
+            marker: {
+                symbol: "diamond",
+                size: 16,
+                color: "#10B981",
+                line: {
+                    color: "#0F172A",
+                    width: 2
+                }
+            },
+            name: "Predicted Cost (Expected)",
+            hovertemplate: "Expected Cost: <b>%{x:,.2f} €</b><extra></extra>",
+            showlegend: true
+        };
+
+        const data = [traceRange, traceBase, traceExpected];
+
+        const layout = {
+            title: {
+                text: "Project Cost Estimate & Error Range",
+                font: {
+                    family: "Outfit",
+                    size: 16,
+                    color: "#F8FAFC"
+                }
+            },
+            paper_bgcolor: "rgba(0,0,0,0)",
+            plot_bgcolor: "rgba(15, 23, 42, 0.3)",
+            xaxis: {
+                tickformat: ",.0f",
+                ticksuffix: " €",
+                gridcolor: "rgba(255,255,255,0.05)",
+                tickfont: { color: "#64748B", family: "Outfit" },
+                zeroline: false
+            },
+            yaxis: {
+                showticklabels: false,
+                zeroline: false,
+                showgrid: false,
+                fixedrange: true
+            },
+            margin: { l: 20, r: 20, t: 50, b: 20 },
+            height: 350,
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                y: -0.3,
+                x: 0.5,
+                xanchor: "center",
+                font: { color: "#94A3B8", family: "Outfit", size: 11 }
+            }
+        };
+
+        Plotly.newPlot("plotly-chart-container", data, layout, { 
+            displayModeBar: false,
+            responsive: true
+        });
+    }
+
+    function showChartPlaceholder(msg) {
+        document.getElementById("plotly-chart-container").innerHTML = `
+            <div class="svg-placeholder" style="border: none; min-height: 380px;">
+                <div class="placeholder-icon">📈</div>
+                <div class="placeholder-text">${msg}</div>
+            </div>
+        `;
+    }
+
     // --- State & DOM cache ---
     const useDemoCheckbox = document.getElementById("use_demo");
     const uploadGroup = document.getElementById("upload-group");
@@ -752,6 +895,14 @@
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = "<span>⏳ Processing...</span>";
         errorAlert.style.display = "none";
+        
+        // Show loading spinner in chart container
+        document.getElementById("plotly-chart-container").innerHTML = `
+            <div class="svg-placeholder" style="border: none; min-height: 380px;">
+                <div class="spinner"></div>
+                <div class="placeholder-text" style="margin-top: 15px;">Calculating cost models...</div>
+            </div>
+        `;
 
         const formData = new FormData(form);
 
@@ -781,6 +932,9 @@
             kpiCost.textContent = `${data.predicted_cost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €`;
             kpiMae.textContent = `${Math.round(data.mae).toLocaleString()} €`;
 
+            // Draw Range Chart
+            buildCostRangeChart(data.gfa * data.base_market_price, data.predicted_cost, data.mae);
+
         } catch (err) {
             console.error(err);
             errorAlertText.textContent = err.message || "Could not connect to the API server.";
@@ -792,6 +946,9 @@
             kpiPrice.textContent = "— €/m²";
             kpiCost.textContent = "— €";
             kpiMae.textContent = "— €";
+            
+            // Show error state in chart
+            showChartPlaceholder("Pipeline execution failed.");
         } finally {
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = "<span>⚡ Run Cost Engine</span>";
