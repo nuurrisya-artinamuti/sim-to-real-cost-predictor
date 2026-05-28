@@ -1,6 +1,6 @@
 # Sim-to-Real Construction Cost Predictor (PCM Group G31)
 
-This project transforms static floor plan data into a dynamic financial decision-support tool for construction cost estimation. It takes an input SVG floor plan, a target city in Finland, and a target year of completion, and outputs a dynamic Confidence Interval representing the predicted construction cost risk envelope.
+This project transforms static floor plan data into a dynamic financial decision-support tool for construction cost estimation. It takes an input SVG floor plan, a target city in Finland, and a target year of completion, and outputs predicted project costs and accuracy intervals.
 
 ---
 
@@ -12,14 +12,13 @@ Given:
 1. An **SVG floor plan file**
 2. A **target city** in Finland (Helsinki, Espoo, Vantaa, Tampere, or Oulu)
 3. A **target year** of completion (e.g., 2026)
-4. A **target confidence level** (e.g., 90%)
 
 The system outputs:
 - The **Gross Floor Area (GFA)** and **Room Count** of the layout.
 - The forecasted **market baseline price** (€/m²) for that city and year.
 - The **Expected Project Cost** (€).
-- A **Confidence Interval** representing the project's risk envelope.
-- An interactive **S-Curve (CDF)** illustrating the cumulative probability of construction cost outcomes.
+- The **Mean Absolute Error (MAE)** (€) representing the accuracy envelope.
+- An interactive **Plotly.js Cost Estimation Visualizer** displaying the expected cost and the $\pm\text{MAE}$ accuracy range.
 
 ---
 
@@ -35,7 +34,7 @@ graph TD
     Inputs[City & Completion Year] -->|Step 1: Pooled Regression| Forecaster(forecaster.py)
     Forecaster -->|Forecasted €/m²| Predictor
     
-    Predictor -->|Step 2: Linear Pipeline + normal error CDF| Outputs[Expected Cost & Confidence Interval]
+    Predictor -->|Step 2: Linear Pipeline + normal error CDF| Outputs[Expected Cost & MAE range]
 ```
 
 ### Step 0: Feature Extraction ([src/extractor.py](./src/extractor.py))
@@ -93,11 +92,12 @@ The project separates raw data, model binaries, execution entry points, and test
   * `extractor.py`: Geometric parsing and text fallback handler.
   * `forecaster.py`: Model loader and price forecaster.
   * `predictor.py`: Cost predictor and analytical normal-curve risk engine.
+* **`static/`**: Dashboard frontend assets.
+  * `index.html`: Interactive user interface with responsive layout and live Plotly.js chart visualizer.
 * **`tests/`**:
   * `test_pipeline.py`: Comprehensive test suite verifying all code functions.
 * **Root Files**:
-  * `app.py`: Streamlit interactive web dashboard.
-  * `server.py`: Flask JSON API server.
+  * `server.py`: Flask application server hosting the dashboard UI and prediction endpoints.
   * `main.py`: Command Line Interface entry point.
 
 ---
@@ -117,8 +117,8 @@ python -m pytest tests/test_pipeline.py
 ```
 
 ### C. Launching the Web App
-To start the interactive Streamlit dashboard:
+To start the Flask-based application server:
 ```bash
-streamlit run app.py
+python server.py
 ```
-*(Open http://localhost:8501 in your browser)*
+*(Open http://localhost:5000 in your browser)*
