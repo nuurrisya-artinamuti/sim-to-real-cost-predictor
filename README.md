@@ -57,30 +57,32 @@ graph TD
 
 ## 2.5 Model Training & Data Preparation Pipeline
 
-To build the datasets and offline models, the training pipeline moves through several data-clearing, simulation, and modeling stages:
+To build the datasets and offline models, the training pipeline moves through several data-clearing, feature engineering, and modeling stages:
 
 ```mermaid
 flowchart TD
-    subgraph Data Extraction & Preparation
+    subgraph Data Extraction & Ingestion
         CC5K[CubiCasa5K Dataset SVGs] -->|Step 0 Extractor| ExtractGFA[Extract GFAs & Room Counts]
         ExtractGFA -->|Clean Data| CleanDataset[Cleaned Geometric Dataset]
+        
+        Excel[Input 2 - Cities Finland.xlsx] -->|Baseline City Prices| MarketPrices[Cities Finland Price Data]
     end
 
-    subgraph Market Ingestion
-        Excel[Input 2 - Cities Finland.xlsx] -->|Filter 2020-2024| CleanMarket[Cleaned Historical Price Data]
+    subgraph Feature Engineering & Assembly
+        CleanDataset & MarketPrices -->|Join GFA with Price/m²| CombineData[Combine Dataset]
+        CombineData -->|Compute: base_cost = GFA × Price/m²| CalcBase[Calculate Base Costs]
+        CombineData -->|Compute: complexity = 1.0 + rooms × 0.01| CalcComplexity[Calculate Complexity Factor]
+        
+        CalcBase & CalcComplexity -->|Assemble Project Records| FinalCSV[data/combined_dataset.csv]
+    end
+
+    subgraph Supporting Model (Market Forecaster)
+        MarketPrices -->|Filter 2020-2024| CleanMarket[Cleaned Historical Data]
         CleanMarket -->|Train Linear Regression| MarketModel[models/market_model.pkl]
     end
 
-    subgraph Cost Simulation & Combined Ingestion
-        CleanDataset -->|Join Base Prices| CombineMarket[Simulated Project Specifications]
-        MarketModel -.->|Forecast Base Price €/m²| CombineMarket
-        
-        CombineMarket -->|Apply complexity = f rooms/GFA| CalcBase[Calculate Base Costs]
-        CalcBase -->|Apply PERT Noise & Actual Costs| SynthData[data/combined_dataset.csv]
-    end
-
-    subgraph Cost Model Training
-        SynthData -->|Split 80-20 Train/Test| MLPipeline[ML Pipeline: OneHotEncoder + passthrough]
+    subgraph Main Model Training (Cost Predictor)
+        FinalCSV -->|Split 80-20 Train/Test| MLPipeline[ML Pipeline: OneHotEncoder + passthrough]
         MLPipeline -->|Train Linear Regression| CostModel[models/final_linear_cost_model.pkl]
         CostModel -->|Calculate Test Set MAE| MAETxt[models/final_model_mae.txt]
     end
