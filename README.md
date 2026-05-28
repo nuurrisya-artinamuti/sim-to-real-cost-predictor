@@ -77,14 +77,7 @@ flowchart TD
         CalcBase -->|Apply: base_cost × complexity × Uniform Noise (0.9 - 1.2)| CalcActual[Calculate Actual Costs]
         CalcComplexity -->|Apply: base_cost × complexity × Uniform Noise (0.9 - 1.2)| CalcActual
         CalcActual -->|Assemble Project Records| FinalCSV[data/combined_dataset.csv]
-    end
-
-    subgraph Supporting Model (Market Forecaster)
-        MarketPrices -->|Filter 2020-2024| CleanMarket[Cleaned Historical Data]
-        CleanMarket -->|Train Linear Regression| MarketModel[models/market_model.pkl]
-    end
-
-    subgraph Main Model Training (Cost Predictor)
+    subgraph Model Training (Cost Predictor)
         FinalCSV -->|Split 80-20 Train/Test| MLPipeline[ML Pipeline: OneHotEncoder + passthrough]
         MLPipeline -->|Train Linear Regression| CostModel[models/final_linear_cost_model.pkl]
         CostModel -->|Calculate Test Set MAE| MAETxt[models/final_model_mae.txt]
