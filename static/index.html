@@ -7,8 +7,6 @@
     
     <!-- Outfit Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Plotly.js CDN -->
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
         :root {
             --bg-color: #0F172A;
@@ -249,7 +247,13 @@
             transform: translateY(0);
         }
 
-        /* --- Right Column Layout --- */
+        /* --- Columns Layout --- */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
         .main-column {
             display: flex;
             flex-direction: column;
@@ -259,8 +263,26 @@
         /* KPI Grid */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .kpi-card {
@@ -502,20 +524,6 @@
             line-height: 1.4;
         }
 
-        /* --- Visualizers Row Grid --- */
-        .visualizer-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        @media (max-width: 1024px) {
-            .visualizer-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -527,71 +535,72 @@
     </header>
 
     <div class="dashboard-grid">
-        <!-- Sidebar Controls -->
-        <aside class="glass-card">
-            <h2 class="card-title">🎛️ Parameters</h2>
-            
-            <form id="predictor-form">
-                <!-- 1. Demo Mode Selection -->
-                <div class="form-group">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="use_demo" name="use_demo" checked>
-                        <span class="custom-checkbox"></span>
-                        <span style="font-size: 0.95rem;">Use Demo Floor Plan (2-Bed)</span>
-                    </label>
-                </div>
-
-                <!-- 2. Custom Upload Input (hidden when use_demo checked) -->
-                <div class="form-group hidden" id="upload-group">
-                    <label class="form-label">Floor Plan SVG</label>
-                    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-sub)">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-                        </svg>
-                        <div style="font-size: 0.95rem; font-weight: 500; margin-top: 8px;">Select SVG File</div>
-                        <div class="upload-zone-text" id="file-name-display">No file chosen</div>
+        <!-- Left Column: Parameters -->
+        <div class="left-column">
+            <!-- Sidebar Controls Card -->
+            <aside class="glass-card" style="margin-bottom: 0;">
+                <h2 class="card-title">🎛️ Parameters</h2>
+                
+                <form id="predictor-form">
+                    <!-- 1. Demo Mode Selection -->
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="use_demo" name="use_demo" checked>
+                            <span class="custom-checkbox"></span>
+                            <span style="font-size: 0.95rem;">Use Demo Floor Plan (2-Bed)</span>
+                        </label>
                     </div>
-                    <input type="file" id="file-input" name="file" accept=".svg" style="display: none">
-                </div>
 
-                <!-- 3. Target City Dropdown -->
-                <div class="form-group">
-                    <label class="form-label" for="city">Target Location</label>
-                    <select class="form-control" id="city" name="city">
-                        <option value="Helsinki">Helsinki</option>
-                        <option value="Espoo">Espoo</option>
-                        <option value="Vantaa">Vantaa</option>
-                        <option value="Tampere">Tampere</option>
-                        <option value="Oulu">Oulu</option>
-                    </select>
-                </div>
-
-                <!-- 4. Forecast Target Year -->
-                <div class="form-group">
-                    <div class="form-label">Target Completion Year</div>
-                    <input type="range" class="form-control" id="year" name="year" min="2025" max="2030" value="2026">
-                    <div class="slider-value">
-                        <span>2025</span>
-                        <span class="slider-display" id="year-val">2026</span>
-                        <span>2030</span>
+                    <!-- 2. Custom Upload Input (hidden when use_demo checked) -->
+                    <div class="form-group hidden" id="upload-group">
+                        <label class="form-label">Floor Plan SVG</label>
+                        <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-sub)">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                            </svg>
+                            <div style="font-size: 0.95rem; font-weight: 500; margin-top: 8px;">Select SVG File</div>
+                            <div class="upload-zone-text" id="file-name-display">No file chosen</div>
+                        </div>
+                        <input type="file" id="file-input" name="file" accept=".svg" style="display: none">
                     </div>
+
+                    <!-- 3. Target City Dropdown -->
+                    <div class="form-group">
+                        <label class="form-label" for="city">Target Location</label>
+                        <select class="form-control" id="city" name="city">
+                            <option value="Helsinki">Helsinki</option>
+                            <option value="Espoo">Espoo</option>
+                            <option value="Vantaa">Vantaa</option>
+                            <option value="Tampere">Tampere</option>
+                            <option value="Oulu">Oulu</option>
+                        </select>
+                    </div>
+
+                    <!-- 4. Forecast Target Year -->
+                    <div class="form-group">
+                        <div class="form-label">Target Completion Year</div>
+                        <input type="range" class="form-control" id="year" name="year" min="2025" max="2030" value="2026">
+                        <div class="slider-value">
+                            <span>2025</span>
+                            <span class="slider-display" id="year-val">2026</span>
+                            <span>2030</span>
+                        </div>
+                    </div>
+
+                    <!-- Run Button -->
+                    <button type="submit" class="btn-run" id="btn-submit">
+                        <span>⚡ Run Cost Engine</span>
+                    </button>
+                </form>
+
+                <div class="alert-box alert-danger" id="error-alert">
+                    <div class="alert-title">❌ Calculation Error</div>
+                    <div class="alert-text" id="error-alert-text">Could not load models.</div>
                 </div>
+            </aside>
+        </div>
 
-                <!-- 5. Confidence Level Slider removed -->
-
-                <!-- Run Button -->
-                <button type="submit" class="btn-run" id="btn-submit">
-                    <span>⚡ Run Cost Engine</span>
-                </button>
-            </form>
-
-            <div class="alert-box alert-danger" id="error-alert">
-                <div class="alert-title">❌ Calculation Error</div>
-                <div class="alert-text" id="error-alert-text">Could not load models.</div>
-            </div>
-        </aside>
-
-        <!-- Main Display Column -->
+        <!-- Right Display Column -->
         <main class="main-column">
             <!-- Metrics Row -->
             <div class="kpi-grid">
@@ -608,36 +617,29 @@
                     <span class="kpi-value" id="kpi-price">— €/m²</span>
                 </div>
                 <div class="kpi-card">
-                    <span class="kpi-label">Expected Cost</span>
+                    <span class="kpi-label">Predicted Cost</span>
                     <span class="kpi-value kpi-accent" id="kpi-cost">— €</span>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">Model Error (MAE)</span>
-                    <span class="kpi-value" id="kpi-mae">— €</span>
                 </div>
             </div>
 
-            <!-- Visualizers Row -->
-            <div class="visualizer-grid">
-                <!-- Floor Plan Visualizer Card -->
-                <div class="glass-card" style="padding: 24px; margin-bottom: 0;">
-                    <div class="svg-preview-header">🗺️ Floor Plan Visualizer</div>
-                    <div id="svg-container" class="svg-container hidden"></div>
-                    <div id="svg-placeholder" class="svg-placeholder">
-                        <div class="placeholder-icon">📐</div>
-                        <div class="placeholder-text">Loading floor plan...</div>
+            <!-- Cost Range Chart Card (Full Width in Main Column) -->
+            <div class="glass-card" style="padding: 24px; margin-bottom: 0;">
+                <div class="svg-preview-header">📊 Cost Estimation Visualizer</div>
+                <div id="plotly-chart-container" style="min-height: 180px; width: 100%;">
+                    <div class="svg-placeholder" style="border: none; min-height: 180px;">
+                        <div class="placeholder-icon">📈</div>
+                        <div class="placeholder-text">Awaiting pipeline execution...</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Cost Range Chart Card -->
-                <div class="glass-card" style="padding: 24px; margin-bottom: 0;">
-                    <div class="svg-preview-header">📊 Cost Estimation Visualizer</div>
-                    <div id="plotly-chart-container" style="min-height: 420px; width: 100%;">
-                        <div class="svg-placeholder" style="border: none; min-height: 380px;">
-                            <div class="placeholder-icon">📈</div>
-                            <div class="placeholder-text">Awaiting pipeline execution...</div>
-                        </div>
-                    </div>
+            <!-- Floor Plan Visualizer Card (Full Width in Main Column) -->
+            <div class="glass-card" style="padding: 24px; margin-bottom: 0;">
+                <div class="svg-preview-header">🗺️ Floor Plan Visualizer</div>
+                <div id="svg-container" class="svg-container hidden"></div>
+                <div id="svg-placeholder" class="svg-placeholder">
+                    <div class="placeholder-icon">📐</div>
+                    <div class="placeholder-text">Loading floor plan...</div>
                 </div>
             </div>
 
@@ -679,110 +681,117 @@
 <script>
     // --- Chart Helper Functions ---
     function buildCostRangeChart(baseCost, predictedCost, mae) {
-        const minVal = Math.max(0, predictedCost - mae);
-        const maxVal = predictedCost + mae;
+        try {
+            const minVal = Math.max(0, predictedCost - mae);
+            const maxVal = predictedCost + mae;
 
-        // Trace for typical MAE range (shaded bar)
-        const traceRange = {
-            x: [minVal, maxVal],
-            y: ["Project Cost", "Project Cost"],
-            type: "scatter",
-            mode: "lines",
-            line: {
-                color: "rgba(99, 102, 241, 0.25)",
-                width: 40
-            },
-            name: "Typical Accuracy Range (± MAE)",
-            hoverinfo: "none",
-            showlegend: true
-        };
+            // Calculate axis range dynamically
+            const allVals = [baseCost, predictedCost, minVal, maxVal];
+            const minCost = Math.min(...allVals);
+            const maxCost = Math.max(...allVals);
+            const range = maxCost - minCost;
+            
+            // Add padding to bounds
+            const plotMin = Math.max(0, minCost - (range * 0.20 || 50000));
+            const plotMax = maxCost + (range * 0.20 || 50000);
+            const plotRange = plotMax - plotMin;
 
-        // Trace for Base Cost line marker
-        const traceBase = {
-            x: [baseCost],
-            y: ["Project Cost"],
-            type: "scatter",
-            mode: "markers",
-            marker: {
-                symbol: "line-ns-open",
-                size: 30,
-                line: {
-                    color: "#94A3B8",
-                    width: 4
-                }
-            },
-            name: "Base Cost (GFA × Price/m²)",
-            hovertemplate: "Base Cost: <b>%{x:,.2f} €</b><extra></extra>",
-            showlegend: true
-        };
-
-        // Trace for Expected predicted cost marker
-        const traceExpected = {
-            x: [predictedCost],
-            y: ["Project Cost"],
-            type: "scatter",
-            mode: "markers",
-            marker: {
-                symbol: "diamond",
-                size: 16,
-                color: "#10B981",
-                line: {
-                    color: "#0F172A",
-                    width: 2
-                }
-            },
-            name: "Predicted Cost (Expected)",
-            hovertemplate: "Expected Cost: <b>%{x:,.2f} €</b><extra></extra>",
-            showlegend: true
-        };
-
-        const data = [traceRange, traceBase, traceExpected];
-
-        const layout = {
-            title: {
-                text: "Project Cost Estimate & Error Range",
-                font: {
-                    family: "Outfit",
-                    size: 16,
-                    color: "#F8FAFC"
-                }
-            },
-            paper_bgcolor: "rgba(0,0,0,0)",
-            plot_bgcolor: "rgba(15, 23, 42, 0.3)",
-            xaxis: {
-                tickformat: ",.0f",
-                ticksuffix: " €",
-                gridcolor: "rgba(255,255,255,0.05)",
-                tickfont: { color: "#64748B", family: "Outfit" },
-                zeroline: false
-            },
-            yaxis: {
-                showticklabels: false,
-                zeroline: false,
-                showgrid: false,
-                fixedrange: true
-            },
-            margin: { l: 20, r: 20, t: 50, b: 20 },
-            height: 350,
-            showlegend: true,
-            legend: {
-                orientation: "h",
-                y: -0.3,
-                x: 0.5,
-                xanchor: "center",
-                font: { color: "#94A3B8", family: "Outfit", size: 11 }
+            // Map values to SVG coordinates (X ranging from 60 to 440 inside a 500px width viewBox)
+            const xLeft = 60;
+            const xRight = 440;
+            function mapX(val) {
+                return xLeft + ((val - plotMin) / plotRange) * (xRight - xLeft);
             }
-        };
 
-        Plotly.newPlot("plotly-chart-container", data, layout, { 
-            displayModeBar: false,
-            responsive: true
-        });
+            const xRangeStart = mapX(minVal);
+            const xRangeEnd = mapX(maxVal);
+            const xBase = mapX(baseCost);
+            const xExpected = mapX(predictedCost);
+
+            // Generate Nice Round Tick Marks, Labels, and Grid Lines
+            const niceIntervals = [5000, 10000, 20000, 25000, 50000, 100000, 200000, 250000, 500000, 1000000];
+            const roughInterval = plotRange / 3.5;
+            let step = niceIntervals[niceIntervals.length - 1];
+            for (let i = 0; i < niceIntervals.length; i++) {
+                if (niceIntervals[i] >= roughInterval) {
+                    step = niceIntervals[i];
+                    break;
+                }
+            }
+            
+            const startTick = Math.ceil(plotMin / step) * step;
+            const ticks = [];
+            for (let t = startTick; t <= plotMax; t += step) {
+                ticks.push(t);
+            }
+            
+            // Fallback if range is very tight
+            if (ticks.length < 2) {
+                ticks.push(plotMin, (plotMin + plotMax) / 2, plotMax);
+            }
+
+            let ticksHtml = "";
+            ticks.forEach(t => {
+                const x = mapX(t);
+                ticksHtml += `
+                    <!-- Grid Line -->
+                    <line x1="${x}" y1="42" x2="${x}" y2="122" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1" />
+                    <!-- Tick Mark -->
+                    <line x1="${x}" y1="122" x2="${x}" y2="128" stroke="#475569" stroke-width="1.5" />
+                    <!-- Tick Label -->
+                    <text x="${x}" y="142" fill="#64748B" font-family="Outfit" font-size="10" text-anchor="middle">${Math.round(t).toLocaleString()} €</text>
+                `;
+            });
+
+            // Build pure SVG template (no library needed, 100% offline) - compact viewBox 0 0 500 180
+            const svgHtml = `
+                <svg viewBox="0 0 500 180" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="background: rgba(15, 23, 42, 0.2); border-radius: 12px; padding: 10px;">
+                    <!-- Axis Line -->
+                    <line x1="40" y1="122" x2="460" y2="122" stroke="#475569" stroke-width="1.5" />
+                    
+                    <!-- Accuracy Range Rect (± MAE Shaded Band) -->
+                    <rect x="${xRangeStart}" y="65" width="${xRangeEnd - xRangeStart}" height="30" fill="rgba(99, 102, 241, 0.15)" stroke="rgba(99, 102, 241, 0.4)" stroke-width="1.5" rx="4" />
+                    <!-- Range Bounds (Minima/Maxima) -->
+                    <text x="${xRangeStart - 6}" y="83" fill="#64748B" font-family="Outfit" font-size="8.5" font-weight="500" text-anchor="end">${Math.round(minVal).toLocaleString()} €</text>
+                    <text x="${xRangeEnd + 6}" y="83" fill="#64748B" font-family="Outfit" font-size="8.5" font-weight="500" text-anchor="start">${Math.round(maxVal).toLocaleString()} €</text>
+                    
+                    <!-- Base Cost Line Marker -->
+                    <line x1="${xBase}" y1="42" x2="${xBase}" y2="115" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="3 3" />
+                    <text x="${xBase}" y="30" fill="#cbd5e1" font-family="Outfit" font-size="10" font-weight="600" text-anchor="middle">${Math.round(baseCost).toLocaleString()} €</text>
+                    
+                    <!-- Predicted Cost Line Marker -->
+                    <line x1="${xExpected}" y1="42" x2="${xExpected}" y2="115" stroke="#10B981" stroke-width="3.5" />
+                    <text x="${xExpected}" y="30" fill="#f8fafc" font-family="Outfit" font-size="11" font-weight="700" text-anchor="middle">${Math.round(predictedCost).toLocaleString()} €</text>
+
+                    <!-- Ticks -->
+                    ${ticksHtml}
+
+                    <!-- Legend Items -->
+                    <!-- Range Box -->
+                    <rect x="30" y="152" width="12" height="10" fill="rgba(99, 102, 241, 0.15)" stroke="rgba(99, 102, 241, 0.4)" rx="2" />
+                    <text x="48" y="161" fill="#94A3B8" font-family="Outfit" font-size="9.5" text-anchor="start">Typical Range (± MAE: ${Math.round(mae).toLocaleString()} €)</text>
+                    
+                    <!-- Predicted Line -->
+                    <line x1="230" y1="157" x2="242" y2="157" stroke="#10B981" stroke-width="3" />
+                    <text x="249" y="161" fill="#94A3B8" font-family="Outfit" font-size="9.5" text-anchor="start">Predicted Cost</text>
+
+                    <!-- Base Cost Line -->
+                    <line x1="345" y1="157" x2="357" y2="157" stroke="#94A3B8" stroke-width="2" stroke-dasharray="2 2" />
+                    <text x="364" y="161" fill="#94A3B8" font-family="Outfit" font-size="9.5" text-anchor="start">Base Cost</text>
+                </svg>
+            `;
+
+            // Draw the custom vector chart
+            document.getElementById("plotly-chart-container").innerHTML = svgHtml;
+        } catch (err) {
+            console.error("Custom SVG chart generation failed:", err);
+            showChartPlaceholder("Chart error: " + err.message);
+        }
     }
 
     function showChartPlaceholder(msg) {
         document.getElementById("plotly-chart-container").innerHTML = `
-            <div class="svg-placeholder" style="border: none; min-height: 380px;">
+            <div class="svg-placeholder" style="border: none; min-height: 180px;">
                 <div class="placeholder-icon">📈</div>
                 <div class="placeholder-text">${msg}</div>
             </div>
@@ -808,7 +817,6 @@
     const kpiRooms = document.getElementById("kpi-rooms");
     const kpiPrice = document.getElementById("kpi-price");
     const kpiCost = document.getElementById("kpi-cost");
-    const kpiMae = document.getElementById("kpi-mae");
 
     // SVG preview elements
     const svgContainer = document.getElementById("svg-container");
@@ -898,9 +906,9 @@
         
         // Show loading spinner in chart container
         document.getElementById("plotly-chart-container").innerHTML = `
-            <div class="svg-placeholder" style="border: none; min-height: 380px;">
-                <div class="spinner"></div>
-                <div class="placeholder-text" style="margin-top: 15px;">Calculating cost models...</div>
+            <div class="svg-placeholder" style="border: none; min-height: 180px;">
+                <div class="spinner" style="width: 30px; height: 30px; border-width: 3px;"></div>
+                <div class="placeholder-text" style="margin-top: 10px; font-size: 0.85rem;">Calculating cost models...</div>
             </div>
         `;
 
@@ -930,7 +938,6 @@
             kpiRooms.textContent = data.rooms;
             kpiPrice.textContent = `${Math.round(data.base_market_price).toLocaleString()} €/m²`;
             kpiCost.textContent = `${data.predicted_cost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €`;
-            kpiMae.textContent = `${Math.round(data.mae).toLocaleString()} €`;
 
             // Draw Range Chart
             buildCostRangeChart(data.gfa * data.base_market_price, data.predicted_cost, data.mae);
@@ -945,7 +952,6 @@
             kpiRooms.textContent = "—";
             kpiPrice.textContent = "— €/m²";
             kpiCost.textContent = "— €";
-            kpiMae.textContent = "— €";
             
             // Show error state in chart
             showChartPlaceholder("Pipeline execution failed.");
