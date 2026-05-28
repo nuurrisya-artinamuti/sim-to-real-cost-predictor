@@ -61,27 +61,12 @@ To build the datasets and offline models, the training pipeline moves through se
 
 ```mermaid
 flowchart TD
-    subgraph Data Extraction & Ingestion
-        CC5K[CubiCasa5K Dataset SVGs] -->|Step 0 Extractor| ExtractGFA[Extract GFAs & Room Counts]
-        ExtractGFA -->|Clean Data| CleanDataset[Cleaned Geometric Dataset]
-        
-        Excel[Input 2 - Cities Finland.xlsx] -->|Baseline City Prices| MarketPrices[Cities Finland Price Data]
-    end
-
-    subgraph Feature Engineering & Assembly
-        CleanDataset -->|Join GFA with Price/m²| CombineData[Combine Dataset]
-        MarketPrices -->|Join GFA with Price/m²| CombineData
-        CombineData -->|Compute: base_cost = GFA × Price/m²| CalcBase[Calculate Base Costs]
-        CombineData -->|Compute: complexity = 1.0 + rooms × 0.01| CalcComplexity[Calculate Complexity Factor]
-        
-        CalcBase -->|Apply: base_cost × complexity × Uniform Noise (0.9 - 1.2)| CalcActual[Calculate Actual Costs]
-        CalcComplexity -->|Apply: base_cost × complexity × Uniform Noise (0.9 - 1.2)| CalcActual
-        CalcActual -->|Assemble Project Records| FinalCSV[data/combined_dataset.csv]
-    subgraph Model Training (Cost Predictor)
-        FinalCSV -->|Split 80-20 Train/Test| MLPipeline[ML Pipeline: OneHotEncoder + passthrough]
-        MLPipeline -->|Train Linear Regression| CostModel[models/final_linear_cost_model.pkl]
-        CostModel -->|Calculate Test Set MAE| MAETxt[models/final_model_mae.txt]
-    end
+    A[CubiCasa5K Dataset SVGs] -->|Step 0 Extractor: GFA & Room Counts| B[Geometric Dataset]
+    B -->|Join with City Prices from Cities Finland.xlsx| C[Base Costs & Complexity Factors]
+    C -->|Apply Uniform Noise (0.9 - 1.2)| D[data/combined_dataset.csv]
+    D -->|80-20 Train/Test Split| E[Linear Regression Pipeline]
+    E -->|Model Training| F[models/final_linear_cost_model.pkl]
+    E -->|Calculate Test Set MAE| G[models/final_model_mae.txt]
 ```
 
 ---
