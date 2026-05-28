@@ -74,8 +74,8 @@ flowchart TD
         CombineData -->|Compute: base_cost = GFA × Price/m²| CalcBase[Calculate Base Costs]
         CombineData -->|Compute: complexity = 1.0 + rooms × 0.01| CalcComplexity[Calculate Complexity Factor]
         
-        CalcBase -->|Apply: base_cost × complexity × Uniform Noise [0.9 - 1.2]| CalcActual[Calculate Actual Costs]
-        CalcComplexity -->|Apply: base_cost × complexity × Uniform Noise [0.9 - 1.2]| CalcActual
+        CalcBase -->|Apply: base_cost × complexity × Uniform Noise (0.9 - 1.2)| CalcActual[Calculate Actual Costs]
+        CalcComplexity -->|Apply: base_cost × complexity × Uniform Noise (0.9 - 1.2)| CalcActual
         CalcActual -->|Assemble Project Records| FinalCSV[data/combined_dataset.csv]
     end
 
