@@ -61,29 +61,22 @@ To build the datasets and offline models, the training pipeline moves through se
 
 ```mermaid
 flowchart TD
-    subgraph DataSources[1. Raw Data Sources]
-        CC5K[CubiCasa5K Floor Plan SVGs] -->|Extract Area & Rooms| GeomData[Clean Geometric Dataset]
-        Excel[Input 2 - Cities Finland.xlsx] -->|Baseline City Prices| PriceData[City Market Prices Data]
+    subgraph DataSources[1. Data Sources & Extraction]
+        CC5K[CubiCasa5K Floor Plan SVGs] -->|Extract Area & Rooms| GeomData[Geometric Dataset: GFA & Rooms]
+        Excel[Input 2 - Cities Finland.xlsx] -->|Baseline City Levels| CityPrices[City Prices: €/m² per City & Year]
     end
 
-    subgraph Assembly[2. Feature Engineering & Assembly]
-        GeomData -->|Join on GFA & Price| CombineData[Combine Dataset]
-        PriceData -->|Join on GFA & Price| CombineData
-        CombineData -->|Compute: base_cost = GFA × Price| CalcBase[Calculate Base Costs]
-        CombineData -->|Compute: complexity = 1.0 + rooms × 0.01| CalcComplexity[Calculate Complexity Factor]
-        CalcBase -->|Apply Uniform Noise 0.9 - 1.2| CalcActual[Calculate Simulated Actual Costs]
-        CalcComplexity -->|Apply Uniform Noise 0.9 - 1.2| CalcActual
-        CalcActual -->|Export Dataset| FinalCSV[data/combined_dataset.csv]
+    subgraph Assembly[2. Combination & Feature Engineering]
+        GeomData -->|Join| JoinBox[Base Cost & Complexity Factor Calculation<br>base_cost = GFA × Price/m²<br>complexity = 1.0 + rooms × 0.01]
+        CityPrices -->|Join| JoinBox
+        JoinBox -->|Apply Uniform Noise 0.9 - 1.2| CostCalc[Simulated Actual Costs Calculation]
+        CostCalc -->|Export Dataset| FinalCSV[data/combined_dataset.csv]
     end
 
-    subgraph Modeling[3. Model Comparison & Training]
-        FinalCSV -->|80-20 Train-Test Split| Splits[Train & Test Splits]
-        Splits -->|Fit Model A| LinearRegression[Linear Regression Pipeline]
-        Splits -->|Fit Model B| RandomForest[Random Forest Pipeline]
-        LinearRegression -->|Evaluate Metrics| Comparison[Model Comparison: R² & MAE]
-        RandomForest -->|Evaluate Metrics| Comparison
-        Comparison -->|Select Winner: Linear Regression| Winner[models/final_linear_cost_model.pkl]
-        Winner -->|Record Evaluation MAE| MAEFile[models/final_model_mae.txt]
+    subgraph Modeling[3. Model Selection & Output]
+        FinalCSV -->|80-20 Split| CompareModels[Compare Models: Linear Regression vs Random Forest]
+        CompareModels -->|Linear Regression Wins| Winner[models/final_linear_cost_model.pkl]
+        CompareModels -->|Extract Test MAE| MAEFile[models/final_model_mae.txt]
     end
 ```
 
