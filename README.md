@@ -55,6 +55,39 @@ graph TD
 
 ---
 
+## 2.5 Model Training & Data Preparation Pipeline
+
+To build the datasets and offline models, the training pipeline moves through several data-clearing, simulation, and modeling stages:
+
+```mermaid
+flowchart TD
+    subgraph Data Extraction & Preparation
+        CC5K[CubiCasa5K Dataset SVGs] -->|Step 0 Extractor| ExtractGFA[Extract GFAs & Room Counts]
+        ExtractGFA -->|Clean Data| CleanDataset[Cleaned Geometric Dataset]
+    end
+
+    subgraph Market Ingestion
+        Excel[Input 2 - Cities Finland.xlsx] -->|Filter 2020-2024| CleanMarket[Cleaned Historical Price Data]
+        CleanMarket -->|Train Linear Regression| MarketModel[models/market_model.pkl]
+    end
+
+    subgraph Cost Simulation & Combined Ingestion
+        CleanDataset -->|Join Base Prices| CombineMarket[Simulated Project Specifications]
+        MarketModel -.->|Forecast Base Price €/m²| CombineMarket
+        
+        CombineMarket -->|Apply complexity = f rooms/GFA| CalcBase[Calculate Base Costs]
+        CalcBase -->|Apply PERT Noise & Actual Costs| SynthData[data/combined_dataset.csv]
+    end
+
+    subgraph Cost Model Training
+        SynthData -->|Split 80-20 Train/Test| MLPipeline[ML Pipeline: OneHotEncoder + passthrough]
+        MLPipeline -->|Train Linear Regression| CostModel[models/final_linear_cost_model.pkl]
+        CostModel -->|Calculate Test Set MAE| MAETxt[models/final_model_mae.txt]
+    end
+```
+
+---
+
 ## 3. Mathematical Methodology: Analytical Risk Engine
 
 Instead of running slow Monte Carlo loops, the system infers prediction uncertainty analytically directly from the model's **Mean Absolute Error (MAE)**.
